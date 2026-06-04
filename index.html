@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Трейдинг Калькулятор</title>
+    <style>
+        :root {
+            --bg-color: #f8f9fa;
+            --card-bg: rgba(255, 255, 255, 0.85);
+            --text-color: #2d3748;
+            --long-color: #2ecc71;
+            --long-hover: #27ae60;
+            --short-color: #e74c3c;
+            --short-hover: #c0392b;
+            --border-radius: 16px;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        /* Декоративные мягкие круги на фоне */
+        .circle {
+            position: absolute;
+            border-radius: 50%;
+            background: linear-gradient(135deg, rgba(116, 235, 213, 0.2), rgba(172, 182, 229, 0.2));
+            z-index: -1;
+            filter: blur(40px);
+        }
+        .circle-1 { width: 300px; height: 300px; top: -100px; left: -50px; }
+        .circle-2 { width: 400px; height: 400px; bottom: -150px; right: -50px; }
+        .circle-3 { width: 200px; height: 200px; top: 40%; right: 15%; background: linear-gradient(135deg, rgba(255, 154, 158, 0.15), rgba(250, 208, 196, 0.15)); }
+
+        /* Контейнер калькулятора */
+        .calculator-card {
+            background: var(--card-bg);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.6);
+            padding: 30px;
+            border-radius: var(--border-radius);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.05);
+            width: 100%;
+            max-width: 480px;
+            z-index: 1;
+        }
+
+        h2 {
+            text-align: center;
+            margin-bottom: 25px;
+            font-weight: 600;
+            font-size: 24px;
+            letter-spacing: -0.5px;
+        }
+
+        /* Переключатель Лонг / Шорт */
+        .direction-selector {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 25px;
+        }
+
+        .btn-dir {
+            flex: 1;
+            padding: 14px;
+            border: none;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            color: white;
+            opacity: 0.4;
+            transform: scale(0.98);
+        }
+
+        .btn-long { background-color: var(--long-color); }
+        .btn-long:hover { background-color: var(--long-hover); }
+        .btn-short { background-color: var(--short-color); }
+        .btn-short:hover { background-color: var(--short-hover); }
+
+        /* Активное состояние кнопок направления */
+        .btn-dir.active {
+            opacity: 1;
+            transform: scale(1);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+        }
+
+        /* Поля ввода */
+        .input-group {
+            margin-bottom: 20px;
+        }
+
+        .input-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-size: 14px;
+            font-weight: 500;
+            color: #5a6a85;
+        }
+
+        .input-group input {
+            width: 100%;
+            padding: 12px 16px;
+            border: 2px solid #e2e8f0;
+            border-radius: 10px;
+            font-size: 16px;
+            outline: none;
+            transition: border-color 0.2s;
+            background: rgba(255, 255, 255, 0.9);
+        }
+
+        .input-group input:focus {
+            border-color: #a0aec0;
+        }
+
+        hr {
+            border: 0;
+            height: 1px;
+            background: #e2e8f0;
+            margin: 25px 0;
+        }
+
+        /* Блок результатов */
+        .results-section h3 {
+            font-size: 18px;
+            margin-bottom: 15px;
+            color: #4a5568;
+        }
+
+        .result-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 10px 0;
+            border-bottom: 1px dashed #edf2f7;
+            font-size: 15px;
+        }
+
+        .result-row:last-child {
+            border-bottom: none;
+        }
+
+        .result-label {
+            color: #718096;
+        }
+
+        .result-value {
+            font-weight: 600;
+            color: var(--text-color);
+        }
+
+        /* Подсветка важных уровней */
+        .highlight-tvx .result-value { color: #3182ce; font-size: 16px; }
+        .highlight-stop .result-value { color: var(--short-color); font-size: 16px; }
+        .highlight-tp .result-value { color: var(--long-color); font-size: 16px; }
+    </style>
+</head>
+<body>
+
+    <div class="circle circle-1"></div>
+    <div class="circle circle-2"></div>
+    <div class="circle circle-3"></div>
+
+    <div class="calculator-card">
+        <h2>Расчет позиции</h2>
+
+        <div class="direction-selector">
+            <button type="button" class="btn-dir btn-long active" onclick="setDirection('long')">ЛОНГ</button>
+            <button type="button" class="btn-dir btn-short" onclick="setDirection('short')">ШОРТ</button>
+        </div>
+
+        <div class="input-group">
+            <label for="atr">ATR</label>
+            <input type="number" id="atr" step="any" placeholder="Введите значение ATR" oninput="calculate()">
+        </div>
+
+        <div class="input-group">
+            <label for="keyLevel">Ключевой уровень</label>
+            <input type="number" id="keyLevel" step="any" placeholder="Введите уровень входа" oninput="calculate()">
+        </div>
+
+        <hr>
+
+        <div class="results-section">
+            <h3>Результаты:</h3>
+            
+            <div class="result-row">
+                <span class="result-label">Размер стопа (ATR * 10%):</span>
+                <span class="result-value" id="resStopSize">0.00</span>
+            </div>
+            
+            <div class="result-row">
+                <span class="result-label">Люфт (Размер стопа * 20%):</span>
+                <span class="result-value" id="resLuft">0.00</span>
+            </div>
+            
+            <div class="result-row highlight-tvx">
+                <span class="result-label">ТВХ (Точка входа):</span>
+                <span class="result-value" id="resTvh">0.00</span>
+            </div>
+            
+            <div class="result-row highlight-stop">
+                <span class="result-label">Цена СТОПа:</span>
+                <span class="result-value" id="resStopPrice">0.00</span>
+            </div>
+            
+            <div class="result-row">
+                <span class="result-label">Размер ТП (Размер стопа * 3):</span>
+                <span class="result-value" id="resTpSize">0.00</span>
+            </div>
+            
+            <div class="result-row highlight-tp">
+                <span class="result-label">Цена Тейк-Профита (ТП):</span>
+                <span class="result-value" id="resTpPrice">0.00</span>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // По умолчанию выбран 'long'
+        let currentDirection = 'long';
+
+        function setDirection(direction) {
+            currentDirection = direction;
+            
+            // Переключаем активные классы на кнопках
+            document.querySelector('.btn-long').classList.toggle('active', direction === 'long');
+            document.querySelector('.btn-short').classList.toggle('active', direction === 'short');
+            
+            // Пересчитываем значения при смене направления
+            calculate();
+        }
+
+        function calculate() {
+            // Получаем значения из полей ввода
+            const atr = parseFloat(document.getElementById('atr').value);
+            const keyLevel = parseFloat(document.getElementById('keyLevel').value);
+
+            // Если поля пустые или заполнены некорректно — сбрасываем нули
+            if (isNaN(atr) || isNaN(keyLevel)) {
+                resetResults();
+                return;
+            }
+
+            // Формулы, общие для обоих направлений
+            const stopSize = atr * 0.10;
+            const luft = stopSize * 0.20;
+            const tpSize = stopSize * 3;
+
+            let tvh, stopPrice, tpPrice;
+
+            // Расчеты в зависимости от Лонга или Шорта
+            if (currentDirection === 'long') {
+                tvh = keyLevel + luft;
+                stopPrice = tvh - stopSize;
+                tpPrice = tvh + tpSize;
+            } else {
+                tvh = keyLevel - luft;
+                stopPrice = tvh + stopSize;
+                tpPrice = tvh - tpSize;
+            }
+
+            // Выводим результаты с округлением до 4 знаков после запятой (для точности на крипте/форексе)
+            // Если нужно больше или меньше знаков, просто измените цифру в toFixed()
+            document.getElementById('resStopSize').innerText = stopSize.toFixed(4);
+            document.getElementById('resLuft').innerText = luft.toFixed(4);
+            document.getElementById('resTvh').innerText = tvh.toFixed(4);
+            document.getElementById('resStopPrice').innerText = stopPrice.toFixed(4);
+            document.getElementById('resTpSize').innerText = tpSize.toFixed(4);
+            document.getElementById('resTpPrice').innerText = tpPrice.toFixed(4);
+        }
+
+        function resetResults() {
+            const fields = ['resStopSize', 'resLuft', 'resTvh', 'resStopPrice', 'resTpSize', 'resTpPrice'];
+            fields.forEach(id => document.getElementById(id).innerText = '0.00');
+        }
+    </script>
+</body>
+</html>

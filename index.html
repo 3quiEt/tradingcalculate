@@ -10,280 +10,168 @@
             --card-bg: rgba(255, 255, 255, 0.85);
             --text-color: #2d3748;
             --long-color: #2ecc71;
-            --long-hover: #27ae60;
             --short-color: #e74c3c;
-            --short-hover: #c0392b;
+            --accent-blue: #3182ce;
             --border-radius: 16px;
         }
 
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-        }
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', sans-serif; }
 
         body {
             background-color: var(--bg-color);
             color: var(--text-color);
             min-height: 100vh;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            position: relative;
-            overflow-y: auto;
+            display: flex; justify-content: center; align-items: center;
             padding: 40px 20px;
+            position: relative; overflow-y: auto;
         }
 
-        /* Декоративные мягкие круги на фоне */
         .circle {
-            position: absolute;
-            border-radius: 50%;
+            position: absolute; border-radius: 50%; z-index: -1; filter: blur(40px);
             background: linear-gradient(135deg, rgba(116, 235, 213, 0.2), rgba(172, 182, 229, 0.2));
-            z-index: -1;
-            filter: blur(40px);
         }
         .circle-1 { width: 300px; height: 300px; top: -100px; left: -50px; }
         .circle-2 { width: 400px; height: 400px; bottom: -150px; right: -50px; }
-        .circle-3 { width: 200px; height: 200px; top: 40%; right: 15%; background: linear-gradient(135deg, rgba(255, 154, 158, 0.15), rgba(250, 208, 196, 0.15)); }
 
-        /* Контейнер калькулятора */
         .calculator-card {
-            background: var(--card-bg);
-            backdrop-filter: blur(10px);
-            -webkit-backdrop-filter: blur(10px);
+            background: var(--card-bg); backdrop-filter: blur(10px);
             border: 1px solid rgba(255, 255, 255, 0.6);
-            padding: 30px;
-            border-radius: var(--border-radius);
+            padding: 30px; border-radius: var(--border-radius);
             box-shadow: 0 20px 40px rgba(0, 0, 0, 0.05);
-            width: 100%;
-            max-width: 500px;
-            z-index: 1;
+            width: 100%; max-width: 550px;
         }
 
-        h2 {
-            text-align: center;
-            margin-bottom: 25px;
-            font-weight: 600;
-            font-size: 24px;
-            letter-spacing: -0.5px;
-        }
+        h2 { text-align: center; margin-bottom: 25px; font-weight: 600; }
 
-        /* Переключатель Лонг / Шорт */
-        .direction-selector {
-            display: flex;
-            gap: 15px;
-            margin-bottom: 25px;
-        }
-
+        .direction-selector { display: flex; gap: 15px; margin-bottom: 25px; }
         .btn-dir {
-            flex: 1;
-            padding: 14px;
-            border: none;
-            border-radius: 12px;
-            font-size: 16px;
-            font-weight: bold;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            color: white;
-            opacity: 0.4;
-            transform: scale(0.98);
+            flex: 1; padding: 14px; border: none; border-radius: 12px;
+            font-size: 16px; font-weight: bold; cursor: pointer;
+            transition: all 0.3s; color: white; opacity: 0.4;
         }
-
         .btn-long { background-color: var(--long-color); }
-        .btn-long:hover { background-color: var(--long-hover); }
         .btn-short { background-color: var(--short-color); }
-        .btn-short:hover { background-color: var(--short-hover); }
+        .btn-dir.active { opacity: 1; box-shadow: 0 8px 20px rgba(0,0,0,0.15); transform: scale(1.02); }
 
-        .btn-dir.active {
-            opacity: 1;
-            transform: scale(1);
-            box-shadow: 0 8px 20px rgba(0,0,0,0.15);
-        }
+        .inputs-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 20px; }
+        .full-width { grid-column: span 2; }
 
-        /* Блок полей ввода */
-        .inputs-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 15px;
-            margin-bottom: 20px;
-        }
-
-        .input-group.full-width {
-            grid-column: span 2;
-        }
-
-        .input-group label {
-            display: block;
-            margin-bottom: 8px;
-            font-size: 14px;
-            font-weight: 500;
-            color: #5a6a85;
-        }
-
+        .input-group label { display: block; margin-bottom: 8px; font-size: 14px; color: #5a6a85; }
         .input-group input {
-            width: 100%;
-            padding: 12px 16px;
-            border: 2px solid #e2e8f0;
-            border-radius: 10px;
-            font-size: 16px;
-            outline: none;
-            transition: border-color 0.2s;
-            background: rgba(255, 255, 255, 0.9);
+            width: 100%; padding: 12px; border: 2px solid #e2e8f0;
+            border-radius: 10px; outline: none; background: rgba(255,255,255,0.9);
         }
 
-        .input-group input:focus {
-            border-color: #a0aec0;
-        }
-
-        hr {
-            border: 0;
-            height: 1px;
-            background: #e2e8f0;
-            margin: 25px 0;
-        }
-
-        /* Блок результатов */
-        .results-section h3 {
-            font-size: 18px;
-            margin-bottom: 15px;
-            color: #4a5568;
-        }
+        hr { border: 0; height: 1px; background: #e2e8f0; margin: 25px 0; }
 
         .result-row {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 10px 0;
-            border-bottom: 1px dashed #edf2f7;
-            font-size: 15px;
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 10px 0; border-bottom: 1px dashed #edf2f7; font-size: 15px;
         }
+        .result-label { color: #718096; }
+        .result-value { font-weight: 600; }
 
-        .result-row:last-child {
+        .highlight-blue { color: var(--accent-blue); }
+        .highlight-red { color: var(--short-color); }
+        .highlight-green { color: var(--long-color); }
+
+        .volume-box {
+            background: rgba(49, 130, 206, 0.05);
+            padding: 15px; border-radius: 10px; margin-top: 15px;
+            border: 1px solid rgba(49, 130, 206, 0.1);
+        }
+        .volume-item {
+            padding: 12px 0;
+            border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+        }
+        .volume-item:last-child {
             border-bottom: none;
         }
-
-        .result-label {
-            color: #718096;
-        }
-
-        .result-value {
+        .volume-title {
+            font-size: 14px;
             font-weight: 600;
-            color: var(--text-color);
+            color: #2d3748;
+            margin-bottom: 6px;
         }
-
-        /* Подсветка */
-        .highlight-tvx .result-value { color: #3182ce; font-size: 16px; }
-        .highlight-stop .result-value { color: var(--short-color); font-size: 16px; }
-        .highlight-tp .result-value { color: var(--long-color); font-size: 16px; }
-        
-        /* Главные результаты объема */
-        .highlight-volume {
-            background: linear-gradient(135deg, rgba(46, 204, 113, 0.08), rgba(49, 130, 206, 0.08));
-            margin-top: 10px;
-            padding: 12px 12px;
-            border-radius: 10px;
-            border: 1px solid rgba(49, 130, 206, 0.15);
+        .volume-values {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 6px;
+            font-size: 13px;
+            color: #4a5568;
         }
-        .highlight-volume.tokens {
-            background: linear-gradient(135deg, rgba(159, 122, 234, 0.08), rgba(49, 130, 206, 0.08));
-            border-color: rgba(159, 122, 234, 0.2);
+        .volume-values .full-row {
+            grid-column: span 2;
+            margin-top: 2px;
         }
-        .highlight-volume .result-label { color: #2d3748; font-weight: 600; }
-        .highlight-volume .result-value { color: #2b6cb0; font-size: 18px; font-weight: 700; }
-        .highlight-volume.tokens .result-value { color: #6b46c1; }
+        .vol-token { color: #6b46c1; font-weight: 600; }
+        .vol-money { color: #27ae60; font-weight: 600; }
+        .vol-tp { color: #2d3748; font-weight: 600; }
     </style>
 </head>
 <body>
 
     <div class="circle circle-1"></div>
     <div class="circle circle-2"></div>
-    <div class="circle circle-3"></div>
 
     <div class="calculator-card">
-        <h2>Расчет позиции</h2>
+        <h2>Трейдинг Калькулятор</h2>
 
         <div class="direction-selector">
-            <button type="button" class="btn-dir btn-long active" onclick="setDirection('long')">ЛОНГ</button>
-            <button type="button" class="btn-dir btn-short" onclick="setDirection('short')">ШОРТ</button>
+            <button class="btn-dir btn-long active" onclick="setDirection('long')">ЛОНГ</button>
+            <button class="btn-dir btn-short" onclick="setDirection('short')">ШОРТ</button>
         </div>
 
         <div class="inputs-grid">
-            <div class="input-group">
-                <label for="atr">ATR</label>
-                <input type="number" id="atr" step="any" placeholder="Напр. 1.5" oninput="calculate()">
-            </div>
-
-            <div class="input-group">
-                <label for="keyLevel">Ключевой уровень</label>
-                <input type="number" id="keyLevel" step="any" placeholder="Напр. 150" oninput="calculate()">
-            </div>
-
-            <div class="input-group full-width">
-                <label for="risk">Риск на сделку (в деньгах, $)</label>
-                <input type="number" id="risk" step="any" placeholder="Какую сумму готовы потерять?" oninput="calculate()">
-            </div>
+            <div class="input-group"><label>ATR</label><input type="number" id="atr" placeholder="ATR" oninput="calculate()"></div>
+            <div class="input-group"><label>Ключевой уровень</label><input type="number" id="keyLevel" placeholder="Уровень" oninput="calculate()"></div>
+            <div class="input-group full-width"><label>Риск на сделку ($)</label><input type="number" id="risk" placeholder="Сумма риска" oninput="calculate()"></div>
         </div>
 
-        <hr>
-
         <div class="results-section">
-            <h3>Результаты:</h3>
-            
-            <div class="result-row">
-                <span class="result-label">Размер стопа (ATR * 10%):</span>
-                <span class="result-value" id="resStopSize">0.00</span>
-            </div>
-            
-            <div class="result-row">
-                <span class="result-label">Люфт (Стоп * 20%):</span>
-                <span class="result-value" id="resLuft">0.00</span>
-            </div>
-            
-            <div class="result-row highlight-tvx">
-                <span class="result-label">ТВХ (Точка входа):</span>
-                <span class="result-value" id="resTvh">0.00</span>
-            </div>
-            
-            <div class="result-row highlight-stop">
-                <span class="result-label">Цена СТОПа:</span>
-                <span class="result-value" id="resStopPrice">0.00</span>
-            </div>
+            <div class="result-row"><span class="result-label">ТВХ (Точка входа):</span><span class="result-value highlight-blue" id="resTvh">0.00</span></div>
+            <div class="result-row"><span class="result-label">ТЕЙК (Цена профита 1:3):</span><span class="result-value highlight-green" id="resTpPrice">0.00</span></div>
+            <div class="result-row"><span class="result-label">СТОП (Цена ограничения убытка):</span><span class="result-value highlight-red" id="resStopPrice">0.00</span></div>
 
-            <div class="result-row">
-                <span class="result-label">Размер СТОПа в %:</span>
-                <span class="result-value" id="resStopPercent">0.00%</span>
-            </div>
-            
-            <div class="result-row">
-                <span class="result-label">Размер ТП (Стоп * 3):</span>
-                <span class="result-value" id="resTpSize">0.00</span>
-            </div>
-            
-            <div class="result-row highlight-tp">
-                <span class="result-label">Цена Тейк-Профита (1:3):</span>
-                <span class="result-value" id="resTpPrice">0.00</span>
-            </div>
+            <div class="result-row" style="border-bottom: none; font-size: 14px;"><span class="result-label">Размер СТОПа в %:</span><span class="result-value" id="resStopPercent">0.00%</span></div>
 
-            <div class="result-row highlight-volume">
-                <span class="result-label">Объем позиции (в деньгах):</span>
-                <span class="result-value" id="resVolumeMoney">0.00</span>
-            </div>
-
-            <div class="result-row highlight-volume tokens">
-                <span class="result-label">Объем позиции (в токенах):</span>
-                <span class="result-value" id="resVolumeTokens">0.00</span>
+            <div class="volume-box">
+                <div class="volume-item">
+                    <div class="volume-title">Идеальные параметры позиции:</div>
+                    <div class="volume-values">
+                        <span>В деньгах: <span class="vol-money" id="resVolIdealMoney">0.00 $</span></span>
+                        <span>В токенах: <span class="vol-token" id="resVolIdealTokens">0.0000</span></span>
+                    </div>
+                </div>
+                
+                <div class="volume-item">
+                    <div class="volume-title">При ухудшении +1% <span id="tvh1">(0.00)</span>:</div>
+                    <div class="volume-values">
+                        <span>В деньгах: <span class="vol-money" id="vol1Money">0.00 $</span></span>
+                        <span>В токенах: <span class="vol-token" id="vol1Tokens">0.0000</span></span>
+                        <div class="full-row">Новый ТЕЙК (1:3): <span class="vol-tp highlight-green" id="tp1">0.00</span></div>
+                    </div>
+                </div>
+                
+                <div class="volume-item">
+                    <div class="volume-title">При ухудшении +2% <span id="tvh2">(0.00)</span>:</div>
+                    <div class="volume-values">
+                        <span>В деньгах: <span class="vol-money" id="vol2Money">0.00 $</span></span>
+                        <span>В токенах: <span class="vol-token" id="vol2Tokens">0.0000</span></span>
+                        <div class="full-row">Новый ТЕЙК (1:3): <span class="vol-tp highlight-green" id="tp2">0.00</span></div>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
 
     <script>
-        let currentDirection = 'long';
+        let direction = 'long';
 
-        function setDirection(direction) {
-            currentDirection = direction;
-            document.querySelector('.btn-long').classList.toggle('active', direction === 'long');
-            document.querySelector('.btn-short').classList.toggle('active', direction === 'short');
+        function setDirection(dir) {
+            direction = dir;
+            document.querySelectorAll('.btn-dir').forEach(b => b.classList.remove('active'));
+            document.querySelector('.btn-' + dir).classList.add('active');
             calculate();
         }
 
@@ -297,62 +185,97 @@
                 return;
             }
 
-            // Расчет уровней позиции
             const stopSize = atr * 0.10;
             const luft = stopSize * 0.20;
-            const tpSize = stopSize * 3;
+            let tvh, stopPrice;
 
-            let tvh, stopPrice, tpPrice, stopPercent;
-
-            if (currentDirection === 'long') {
+            if (direction === 'long') {
                 tvh = keyLevel + luft;
                 stopPrice = tvh - stopSize;
-                tpPrice = tvh + tpSize;
-                stopPercent = ((tvh - stopPrice) / tvh) * 100;
             } else {
                 tvh = keyLevel - luft;
                 stopPrice = tvh + stopSize;
-                tpPrice = tvh - tpSize;
-                stopPercent = ((stopPrice - tvh) / tvh) * 100;
             }
 
-            // Расчет объемов
-            let volumeMoney = 0;
-            let volumeTokens = 0;
+            const idealTp = direction === 'long' ? tvh + (stopSize * 3) : tvh - (stopSize * 3);
+            const stopPercent = (Math.abs(tvh - stopPrice) / tvh) * 100;
+            
+            // Расчет идеального объема
+            const idealVolMoney = (risk * tvh) / Math.abs(tvh - stopPrice);
+            const idealVolTokens = idealVolMoney / tvh;
 
-            if (!isNaN(risk) && risk > 0 && stopSize > 0 && tvh > 0) {
-                // Общий объем в деньгах = (Риск * ТВХ) / Стоп в пунктах
-                volumeMoney = (risk * tvh) / stopSize;
-                // Объем в токенах = Объем в деньгах / ТВХ
-                volumeTokens = volumeMoney / tvh;
-            }
+            // Расчет ухудшенных точек входа (+1% и +2% в худшую сторону)
+            const tvhPlus1 = direction === 'long' ? tvh * 1.01 : tvh * 0.99;
+            const tvhPlus2 = direction === 'long' ? tvh * 1.02 : tvh * 0.98;
 
-            // Вывод данных на страницу
-            document.getElementById('resStopSize').innerText = stopSize.toFixed(4);
-            document.getElementById('resLuft').innerText = luft.toFixed(4);
+            // Формула расчета объема денег под конкретную точку входа
+            const calcVolMoney = (v, s) => (risk * v) / Math.abs(v - s);
+
+            // Параметры для ухудшения +1%
+            const vol1Money = calcVolMoney(tvhPlus1, stopPrice);
+            const vol1Tokens = vol1Money / tvhPlus1;
+            const wStopSize1 = Math.abs(tvhPlus1 - stopPrice); // новое расстояние до стопа
+            const tp1 = direction === 'long' ? tvhPlus1 + (wStopSize1 * 3) : tvhPlus1 - (wStopSize1 * 3);
+
+            // Параметры для ухудшения +2%
+            const boxVol2Money = calcVolMoney(tvhPlus2, stopPrice);
+            const vol2Tokens = boxVol2Money / tvhPlus2;
+            const wStopSize2 = Math.abs(tvhPlus2 - stopPrice); // новое расстояние до стопа
+            const tp2 = direction === 'long' ? tvhPlus2 + (wStopSize2 * 3) : tvhPlus2 - (wStopSize2 * 3);
+
+            // Вывод основных уровней
             document.getElementById('resTvh').innerText = tvh.toFixed(4);
+            document.getElementById('resTpPrice').innerText = idealTp.toFixed(4);
             document.getElementById('resStopPrice').innerText = stopPrice.toFixed(4);
             document.getElementById('resStopPercent').innerText = stopPercent.toFixed(2) + '%';
-            document.getElementById('resTpSize').innerText = tpSize.toFixed(4);
-            document.getElementById('resTpPrice').innerText = tpPrice.toFixed(4);
             
-            // Если риск введен — форматируем результаты, если нет — пишем подсказку
-            if (!isNaN(risk)) {
-                document.getElementById('resVolumeMoney').innerText = volumeMoney.toFixed(2);
-                // Для токенов ставим 4 знака после запятой, так как монеты могут быть дробными (напр. 0.001 BTC)
-                document.getElementById('resVolumeTokens').innerText = volumeTokens.toFixed(4);
+            // Вывод расчетов объемов и динамических тейков
+            if (!isNaN(risk) && risk > 0) {
+                document.getElementById('resVolIdealMoney').innerText = formatMoney(idealVolMoney);
+                document.getElementById('resVolIdealTokens').innerText = idealVolTokens.toFixed(4);
+
+                document.getElementById('tvh1').innerText = "(" + tvhPlus1.toFixed(4) + ")";
+                document.getElementById('vol1Money').innerText = formatMoney(vol1Money);
+                document.getElementById('vol1Tokens').innerText = vol1Tokens.toFixed(4);
+                document.getElementById('tp1').innerText = tp1.toFixed(4);
+
+                document.getElementById('tvh2').innerText = "(" + tvhPlus2.toFixed(4) + ")";
+                document.getElementById('vol2Money').innerText = formatMoney(boxVol2Money);
+                document.getElementById('vol2Tokens').innerText = vol2Tokens.toFixed(4);
+                document.getElementById('tp2').innerText = tp2.toFixed(4);
             } else {
-                document.getElementById('resVolumeMoney').innerText = 'Введите риск';
-                document.getElementById('resVolumeTokens').innerText = 'Введите риск';
+                document.getElementById('resVolIdealMoney').innerText = "Введите риск";
+                document.getElementById('resVolIdealTokens').innerText = "0.0000";
+                document.getElementById('vol1Money').innerText = "0.00 $";
+                document.getElementById('vol1Tokens').innerText = "0.0000";
+                document.getElementById('tp1').innerText = "0.00";
+                document.getElementById('vol2Money').innerText = "0.00 $";
+                document.getElementById('vol2Tokens').innerText = "0.0000";
+                document.getElementById('tp2').innerText = "0.00";
+                document.getElementById('tvh1').innerText = "(0.00)";
+                document.getElementById('tvh2').innerText = "(0.00)";
             }
         }
 
         function resetResults() {
-            const fields = ['resStopSize', 'resLuft', 'resTvh', 'resStopPrice', 'resTpSize', 'resTpPrice'];
-            fields.forEach(id => document.getElementById(id).innerText = '0.00');
+            document.getElementById('resTvh').innerText = '0.00';
+            document.getElementById('resTpPrice').innerText = '0.00';
+            document.getElementById('resStopPrice').innerText = '0.00';
             document.getElementById('resStopPercent').innerText = '0.00%';
-            document.getElementById('resVolumeMoney').innerText = '0.00';
-            document.getElementById('resVolumeTokens').innerText = '0.00';
+            document.getElementById('resVolIdealMoney').innerText = '0.00 $';
+            document.getElementById('resVolIdealTokens').innerText = '0.0000';
+            document.getElementById('vol1Money').innerText = '0.00 $';
+            document.getElementById('vol1Tokens').innerText = '0.0000';
+            document.getElementById('tp1').innerText = '0.00';
+            document.getElementById('vol2Money').innerText = '0.00 $';
+            document.getElementById('vol2Tokens').innerText = '0.0000';
+            document.getElementById('tp2').innerText = '0.00';
+            document.getElementById('tvh1').innerText = "(0.00)";
+            document.getElementById('tvh2').innerText = "(0.00)";
+        }
+
+        function formatMoney(val) {
+            return val.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2}) + " $";
         }
     </script>
 </body>

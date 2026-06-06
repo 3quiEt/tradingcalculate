@@ -185,7 +185,8 @@
                 return;
             }
 
-            const stopSize = atr * 0.10;
+            // Изменено: Размер стопа теперь 20% от ATR (0.20 вместо 0.10)
+            const stopSize = atr * 0.20;
             const luft = stopSize * 0.20;
             let tvh, stopPrice;
 
@@ -204,23 +205,22 @@
             const idealVolMoney = (risk * tvh) / Math.abs(tvh - stopPrice);
             const idealVolTokens = idealVolMoney / tvh;
 
-            // Расчет ухудшенных точек входа (+1% и +2% в худшую сторону)
+            // Расчет ухудшенных точек входа (+1% и +2%)
             const tvhPlus1 = direction === 'long' ? tvh * 1.01 : tvh * 0.99;
             const tvhPlus2 = direction === 'long' ? tvh * 1.02 : tvh * 0.98;
 
-            // Формула расчета объема денег под конкретную точку входа
             const calcVolMoney = (v, s) => (risk * v) / Math.abs(v - s);
 
             // Параметры для ухудшения +1%
             const vol1Money = calcVolMoney(tvhPlus1, stopPrice);
             const vol1Tokens = vol1Money / tvhPlus1;
-            const wStopSize1 = Math.abs(tvhPlus1 - stopPrice); // новое расстояние до стопа
+            const wStopSize1 = Math.abs(tvhPlus1 - stopPrice);
             const tp1 = direction === 'long' ? tvhPlus1 + (wStopSize1 * 3) : tvhPlus1 - (wStopSize1 * 3);
 
             // Параметры для ухудшения +2%
             const boxVol2Money = calcVolMoney(tvhPlus2, stopPrice);
             const vol2Tokens = boxVol2Money / tvhPlus2;
-            const wStopSize2 = Math.abs(tvhPlus2 - stopPrice); // новое расстояние до стопа
+            const wStopSize2 = Math.abs(tvhPlus2 - stopPrice);
             const tp2 = direction === 'long' ? tvhPlus2 + (wStopSize2 * 3) : tvhPlus2 - (wStopSize2 * 3);
 
             // Вывод основных уровней
@@ -229,7 +229,7 @@
             document.getElementById('resStopPrice').innerText = stopPrice.toFixed(4);
             document.getElementById('resStopPercent').innerText = stopPercent.toFixed(2) + '%';
             
-            // Вывод расчетов объемов и динамических тейков
+            // Вывод объемов и динамических тейков
             if (!isNaN(risk) && risk > 0) {
                 document.getElementById('resVolIdealMoney').innerText = formatMoney(idealVolMoney);
                 document.getElementById('resVolIdealTokens').innerText = idealVolTokens.toFixed(4);

@@ -31,7 +31,8 @@
             justify-content: center;
             align-items: center;
             position: relative;
-            overflow: hidden;
+            overflow-y: auto;
+            padding: 40px 20px;
         }
 
         /* Декоративные мягкие круги на фоне */
@@ -56,7 +57,7 @@
             border-radius: var(--border-radius);
             box-shadow: 0 20px 40px rgba(0, 0, 0, 0.05);
             width: 100%;
-            max-width: 480px;
+            max-width: 500px;
             z-index: 1;
         }
 
@@ -94,16 +95,22 @@
         .btn-short { background-color: var(--short-color); }
         .btn-short:hover { background-color: var(--short-hover); }
 
-        /* Активное состояние кнопок направления */
         .btn-dir.active {
             opacity: 1;
             transform: scale(1);
             box-shadow: 0 8px 20px rgba(0,0,0,0.15);
         }
 
-        /* Поля ввода */
-        .input-group {
+        /* Блок полей ввода */
+        .inputs-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
             margin-bottom: 20px;
+        }
+
+        .input-group.full-width {
+            grid-column: span 2;
         }
 
         .input-group label {
@@ -146,6 +153,7 @@
         .result-row {
             display: flex;
             justify-content: space-between;
+            align-items: center;
             padding: 10px 0;
             border-bottom: 1px dashed #edf2f7;
             font-size: 15px;
@@ -164,10 +172,26 @@
             color: var(--text-color);
         }
 
-        /* Подсветка важных уровней */
+        /* Подсветка */
         .highlight-tvx .result-value { color: #3182ce; font-size: 16px; }
         .highlight-stop .result-value { color: var(--short-color); font-size: 16px; }
         .highlight-tp .result-value { color: var(--long-color); font-size: 16px; }
+        
+        /* Главные результаты объема */
+        .highlight-volume {
+            background: linear-gradient(135deg, rgba(46, 204, 113, 0.08), rgba(49, 130, 206, 0.08));
+            margin-top: 10px;
+            padding: 12px 12px;
+            border-radius: 10px;
+            border: 1px solid rgba(49, 130, 206, 0.15);
+        }
+        .highlight-volume.tokens {
+            background: linear-gradient(135deg, rgba(159, 122, 234, 0.08), rgba(49, 130, 206, 0.08));
+            border-color: rgba(159, 122, 234, 0.2);
+        }
+        .highlight-volume .result-label { color: #2d3748; font-weight: 600; }
+        .highlight-volume .result-value { color: #2b6cb0; font-size: 18px; font-weight: 700; }
+        .highlight-volume.tokens .result-value { color: #6b46c1; }
     </style>
 </head>
 <body>
@@ -184,14 +208,21 @@
             <button type="button" class="btn-dir btn-short" onclick="setDirection('short')">ШОРТ</button>
         </div>
 
-        <div class="input-group">
-            <label for="atr">ATR</label>
-            <input type="number" id="atr" step="any" placeholder="Введите значение ATR" oninput="calculate()">
-        </div>
+        <div class="inputs-grid">
+            <div class="input-group">
+                <label for="atr">ATR</label>
+                <input type="number" id="atr" step="any" placeholder="Напр. 1.5" oninput="calculate()">
+            </div>
 
-        <div class="input-group">
-            <label for="keyLevel">Ключевой уровень</label>
-            <input type="number" id="keyLevel" step="any" placeholder="Введите уровень входа" oninput="calculate()">
+            <div class="input-group">
+                <label for="keyLevel">Ключевой уровень</label>
+                <input type="number" id="keyLevel" step="any" placeholder="Напр. 150" oninput="calculate()">
+            </div>
+
+            <div class="input-group full-width">
+                <label for="risk">Риск на сделку (в деньгах, $)</label>
+                <input type="number" id="risk" step="any" placeholder="Какую сумму готовы потерять?" oninput="calculate()">
+            </div>
         </div>
 
         <hr>
@@ -205,7 +236,7 @@
             </div>
             
             <div class="result-row">
-                <span class="result-label">Люфт (Размер стопа * 20%):</span>
+                <span class="result-label">Люфт (Стоп * 20%):</span>
                 <span class="result-value" id="resLuft">0.00</span>
             </div>
             
@@ -218,76 +249,110 @@
                 <span class="result-label">Цена СТОПа:</span>
                 <span class="result-value" id="resStopPrice">0.00</span>
             </div>
+
+            <div class="result-row">
+                <span class="result-label">Размер СТОПа в %:</span>
+                <span class="result-value" id="resStopPercent">0.00%</span>
+            </div>
             
             <div class="result-row">
-                <span class="result-label">Размер ТП (Размер стопа * 3):</span>
+                <span class="result-label">Размер ТП (Стоп * 3):</span>
                 <span class="result-value" id="resTpSize">0.00</span>
             </div>
             
             <div class="result-row highlight-tp">
-                <span class="result-label">Цена Тейк-Профита (ТП):</span>
+                <span class="result-label">Цена Тейк-Профита (1:3):</span>
                 <span class="result-value" id="resTpPrice">0.00</span>
+            </div>
+
+            <div class="result-row highlight-volume">
+                <span class="result-label">Объем позиции (в деньгах):</span>
+                <span class="result-value" id="resVolumeMoney">0.00</span>
+            </div>
+
+            <div class="result-row highlight-volume tokens">
+                <span class="result-label">Объем позиции (в токенах):</span>
+                <span class="result-value" id="resVolumeTokens">0.00</span>
             </div>
         </div>
     </div>
 
     <script>
-        // По умолчанию выбран 'long'
         let currentDirection = 'long';
 
         function setDirection(direction) {
             currentDirection = direction;
-            
-            // Переключаем активные классы на кнопках
             document.querySelector('.btn-long').classList.toggle('active', direction === 'long');
             document.querySelector('.btn-short').classList.toggle('active', direction === 'short');
-            
-            // Пересчитываем значения при смене направления
             calculate();
         }
 
         function calculate() {
-            // Получаем значения из полей ввода
             const atr = parseFloat(document.getElementById('atr').value);
             const keyLevel = parseFloat(document.getElementById('keyLevel').value);
+            const risk = parseFloat(document.getElementById('risk').value);
 
-            // Если поля пустые или заполнены некорректно — сбрасываем нули
             if (isNaN(atr) || isNaN(keyLevel)) {
                 resetResults();
                 return;
             }
 
-            // Формулы, общие для обоих направлений
+            // Расчет уровней позиции
             const stopSize = atr * 0.10;
             const luft = stopSize * 0.20;
             const tpSize = stopSize * 3;
 
-            let tvh, stopPrice, tpPrice;
+            let tvh, stopPrice, tpPrice, stopPercent;
 
-            // Расчеты в зависимости от Лонга или Шорта
             if (currentDirection === 'long') {
                 tvh = keyLevel + luft;
                 stopPrice = tvh - stopSize;
                 tpPrice = tvh + tpSize;
+                stopPercent = ((tvh - stopPrice) / tvh) * 100;
             } else {
                 tvh = keyLevel - luft;
                 stopPrice = tvh + stopSize;
                 tpPrice = tvh - tpSize;
+                stopPercent = ((stopPrice - tvh) / tvh) * 100;
             }
 
-            // Выводим результаты с округлением до 4 знаков после запятой (для точности на крипте/форексе)
-            // Если нужно больше или меньше знаков, просто измените цифру в toFixed()
+            // Расчет объемов
+            let volumeMoney = 0;
+            let volumeTokens = 0;
+
+            if (!isNaN(risk) && risk > 0 && stopSize > 0 && tvh > 0) {
+                // Общий объем в деньгах = (Риск * ТВХ) / Стоп в пунктах
+                volumeMoney = (risk * tvh) / stopSize;
+                // Объем в токенах = Объем в деньгах / ТВХ
+                volumeTokens = volumeMoney / tvh;
+            }
+
+            // Вывод данных на страницу
             document.getElementById('resStopSize').innerText = stopSize.toFixed(4);
             document.getElementById('resLuft').innerText = luft.toFixed(4);
             document.getElementById('resTvh').innerText = tvh.toFixed(4);
             document.getElementById('resStopPrice').innerText = stopPrice.toFixed(4);
+            document.getElementById('resStopPercent').innerText = stopPercent.toFixed(2) + '%';
             document.getElementById('resTpSize').innerText = tpSize.toFixed(4);
             document.getElementById('resTpPrice').innerText = tpPrice.toFixed(4);
+            
+            // Если риск введен — форматируем результаты, если нет — пишем подсказку
+            if (!isNaN(risk)) {
+                document.getElementById('resVolumeMoney').innerText = volumeMoney.toFixed(2);
+                // Для токенов ставим 4 знака после запятой, так как монеты могут быть дробными (напр. 0.001 BTC)
+                document.getElementById('resVolumeTokens').innerText = volumeTokens.toFixed(4);
+            } else {
+                document.getElementById('resVolumeMoney').innerText = 'Введите риск';
+                document.getElementById('resVolumeTokens').innerText = 'Введите риск';
+            }
         }
 
         function resetResults() {
             const fields = ['resStopSize', 'resLuft', 'resTvh', 'resStopPrice', 'resTpSize', 'resTpPrice'];
             fields.forEach(id => document.getElementById(id).innerText = '0.00');
+            document.getElementById('resStopPercent').innerText = '0.00%';
+            document.getElementById('resVolumeMoney').innerText = '0.00';
+            document.getElementById('resVolumeTokens').innerText = '0.00';
         }
     </script>
 </body>
